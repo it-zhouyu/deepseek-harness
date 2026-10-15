@@ -1,0 +1,17 @@
+- insert:
+  - id: hello-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-plugin.ts'
+  - id: hello-config-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-config-plugin.ts'
+    config:
+      message: '你好，可配置插件！' 
+  - id: hello-tool-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-tool-plugin.ts'    
+
+- id: webserver
+  config:
+    host: !!js ctx.webStartup.host ?? '127.0.0.1'
+    port: 3090
+    compression: gzip
+    compressionLevel: 1
+    compressionThresholdBytes: 1024

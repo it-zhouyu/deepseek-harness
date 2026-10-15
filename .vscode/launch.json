@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "dsh web",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--import", "tsx/esm",
+        "--inspect-brk",
+        "apps/cli/src/bin.ts",
+        "web",
+        "--patch", "./zhouyu-code/cordis.yml"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "autoAttachChildProcesses": false
+    }
+  ]
+}
