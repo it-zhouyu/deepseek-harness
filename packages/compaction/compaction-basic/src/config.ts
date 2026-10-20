@@ -141,6 +141,8 @@ export function resolveCompactSpec(
       `BasicCompactionConfig: contextWindow (${contextWindow}) must be a positive integer`,
     )
   }
+
+  // 上下文窗口乘以0.8
   const thresholdTokens = Math.floor(contextWindow * policy.thresholdRatio)
   const retainTokens = policy.retainTokens === undefined
     ? Math.floor(contextWindow * policy.retainRatio)

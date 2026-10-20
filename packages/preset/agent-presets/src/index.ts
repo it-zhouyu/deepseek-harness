@@ -789,7 +789,6 @@ export class AgentPresets extends TypertRemoteService {
       // ScopeKey是一个object，所以{ agentPreset: preset.id }直接就是key
       const key: ScopeKey = { agentPreset: preset.id }
 
-      // this.selfCtx是root context，在root context下创建了一个子context，也就是preset context
       const scope = createScope(this.selfCtx, key)
       try {
         // Stamped before the file is read: an edit racing the mount makes the

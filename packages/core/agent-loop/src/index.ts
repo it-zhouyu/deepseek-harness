@@ -771,6 +771,7 @@ export class AgentLoop extends Service implements AgentFactory {
    */
   async createAgent(ownerCtx: Context, options: CreateAgentOptions): Promise<AgentHandle> {
 
+    // 创建一个Session对象
     const preparation = SessionPreparation.create(this.runtime.ctx.sessions.prepare(options.sessionId, {
       ...options.seed === undefined ? {} : { seed: options.seed },
       ...options.meta === undefined ? {} : { meta: options.meta },
@@ -802,7 +803,7 @@ export class AgentLoop extends Service implements AgentFactory {
         options.sessionId,
         preparation,
         options.agentOptions ?? {},
-        options.setup,
+        options.setup,  // 挂载preset的
         options.signal,
         'startup',
         stored,

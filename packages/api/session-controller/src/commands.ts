@@ -378,6 +378,7 @@ export class SessionCommandController {
         }
         using binding = this.ctx.fileUploads.bindPrompt(agent, admission.receiptIds, request.requestId)
 
+        // steer插队，followup排队
         if (request.mode === 'steer') agent.steer(message)
         else agent.followup(message)
 

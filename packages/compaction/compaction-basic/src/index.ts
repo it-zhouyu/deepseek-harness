@@ -243,6 +243,8 @@ export class BasicCompactionEngine extends CompactionEngine {
     const config = target === undefined
       ? this.config
       : resolveTargetPolicy(this.config, target)
+    
+    // 调用大模型进行总结
     return summarizeWithLlm(this.ctx, config, input, agent, signal)
   }
 
@@ -266,6 +268,8 @@ export class BasicCompactionEngine extends CompactionEngine {
     const policy = resolveTargetPolicy(this.config, target)
     const meter = this.ctx.tokenMeter
     
+    // totalTokens就是最新UserMessage估算token数+之前实际占用的token（来源于最后一条AssistantMessage中的Usage）
+    // nodes里面包含了每条消息估算token数
     let measurement = meter.measure(agent.session)
     
     switch (trigger) {
@@ -281,10 +285,12 @@ export class BasicCompactionEngine extends CompactionEngine {
     // Pruning is optional so compaction-basic remains independently composable.
     // Overflow always qualifies; pressure first resolves the routed model's
     // capacity and checks its target-specific threshold.
+    // 工具结果裁剪服务，prune.pruneSession(session) 把超长的 tool result（如一大段命令输出或文件内容）从中间截掉，不调用一次模型就能先把 token 占用降低一些
     const prune = this.ctx.get('toolResultPruner')
 
     if (trigger === 'context-overflow') {
       if (prune !== undefined) {
+        // 先裁剪，再重估token
         prune.pruneSession(agent.session)
         measurement = meter.measure(agent.session)
       }
@@ -293,6 +299,7 @@ export class BasicCompactionEngine extends CompactionEngine {
       return this.compactRegion(range.start, range.end, agent, signal)
     }
 
+    // 当前使用的模型的上下文窗口大小
     const context = (await this.ctx.llm.resolveModelInfo(target.provider, target.model, signal)).context
     assertNoActiveCompaction(agent.session, 'automatic pressure compaction')
     const targetKey = `${target.provider}/${target.model}`
@@ -303,11 +310,14 @@ export class BasicCompactionEngine extends CompactionEngine {
         + 'configure contextWindow on that adapter model',
       )
     }
+
+    // 会计算出压缩阈值
     const spec = resolveCompactSpec(policy, context.contextWindow)
     if (measurement.totalTokens < spec.thresholdTokens) return null
 
     // Once pressure qualifies, land the model-free pass before choosing a
     // summary range, then remeasure through the singleton replay fold.
+    // 先裁剪再重估
     if (prune !== undefined) {
       prune.pruneSession(agent.session)
       measurement = meter.measure(agent.session)
@@ -316,6 +326,9 @@ export class BasicCompactionEngine extends CompactionEngine {
 
     let result: CompactionResult | null = null
     for (let attempt = 0; attempt <= spec.compactionRetries; attempt += 1) {
+      // 从对话的末尾往前算，算出“最近这些必须保留原文”的一截，剩下前面那一大段就是可以压成摘要的；
+      // 顺便保证切点不把工具调用和工具结果劈开。
+      // 返回值就是那个“可压缩段”的两端（{start, end}，闭区间），或者 null（没得压/不敢切）。
       const range = selectCompactableRange(agent.session, measurement, spec.retainTokens)
       if (range === null) {
         /* v8 ignore else -- concrete replacement preserves a compactable checkpoint; subclass hooks cannot mutate it. */
@@ -350,6 +363,7 @@ export class BasicCompactionEngine extends CompactionEngine {
     signal?: AbortSignal,
   ): Promise<CompactionResult> {
     return compactSurfaceRegion(
+      // 这里面会调用大模型进行总结
       this.regionDependencies(),
       agent.session,
       start,
@@ -424,6 +438,7 @@ export class BasicCompactionEngine extends CompactionEngine {
 
   /** Bind the effective token meter and dynamically dispatched summarizer hook. */
   private regionDependencies(): { meter: TokenMeter; summarize: RegionSummarize } {
+    // summarize就是调用大模型进行总结
     return {
       meter: this.ctx.tokenMeter,
       summarize: (input, owner, abort) => this.summarize(input, owner, abort),

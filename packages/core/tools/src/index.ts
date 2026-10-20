@@ -1052,6 +1052,9 @@ export class ToolRuntime extends Service {
     }
 
     // 注册到layer中
+    // global tool_layer[tool_a， tool_b， ...]
+    // standard_preset tool_layer[tool_a1， tool_b1， ...]
+    // minimal_preset tool_layer[tool_a1， tool_b1， ...]
     return this.layers.effect(
       this.ctx,
       layer => layer.tools.insert(name, definition),

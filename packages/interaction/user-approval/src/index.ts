@@ -268,6 +268,7 @@ export class ApprovalService extends Service {
     // SYNCHRONOUSLY (before its first await) must land in the same rejection
     // path as an async one — `Promise.resolve(call())` would let it escape
     // the containment into the caller.
+    // approval/request事件被client/ui-approval插件监听到，从而前端页面弹窗让用户选择，用户选择只有两个选项，一个是“允许一次”，一个是“拒绝”
     const answer: Promise<ApprovalOutcome> = Promise.resolve().then(
       () => this.ctx.waterfall(
         scopeTarget(req.agent, req.agent), 'approval/request', req,

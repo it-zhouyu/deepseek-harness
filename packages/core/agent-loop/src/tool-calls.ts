@@ -170,11 +170,12 @@ async function runGroup(
   const startCall = async (index: number): Promise<void> => {
     // oxlint-disable-next-line typescript/no-non-null-assertion -- bounded index
     const call = group[index]!
+    
     // 添加'tool/call'到session
     callSeqs[index] = appendToolCall(session, turn, step, call.block)
     started++
 
-    // 发布tools/pre-execute事件，并且会进行审批，审批结果ask、allow、deny，不同的审批结果返回不同的prepared.kind
+    // 发布tools/pre-execute事件，并且会进行审批，审批结果allow、deny，不同的审批结果返回不同的prepared.kind
     const prepared = await ctx.tools[TOOL_RUNTIME_SCHEDULER].prepare(call.exec)
     throwSchedulerFailure()
     switch (prepared.kind) {

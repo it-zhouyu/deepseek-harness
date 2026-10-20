@@ -106,10 +106,14 @@ export class ReactLoopAgent implements Agent {
     // 里面相当于创建了agent.ctx
     this.scope = createScope(loopCtx, this)
     this.ctx = this.scope.ctx
+    
+    // 用来从session里获取接收到的消息
     this.inbox = new ReactLoopInbox(this.ctx.sessionProjections, session, this.dispatch)
     /* v8 ignore next -- the loop registers its own turnBoundary unit, so the key is always present */
     const lastTurn = this.loopCtx.sessionProjections.stateOf(session, 'turnBoundary')?.lastTurn ?? 0
     this.phase = { kind: 'idle', lastTurn }
+
+    // 用来从session里获取runtimeContext和systemPrompt
     this.runtimeContext = new RuntimeContextProjection(this.ctx, session)
     this.systemPrompt = new SystemPromptProjection(session)
   }
@@ -138,6 +142,7 @@ export class ReactLoopAgent implements Agent {
 
     // 将message存到ReactLoopInbox，ReactLoopInbox里有两个列表，next-turn一个，next-step一个
     this.inbox.splice(resolvedTarget, Infinity, 0, [message])
+    
     // 触发执行agent.ts中的kick，从而触发agent.ts中的turn
     if (wakeup) this.wakeDriver(wakingAfterAbort)
   }
@@ -412,6 +417,7 @@ export class ReactLoopAgent implements Agent {
 
     // 这个while是用来进行重试的
     while (true) {
+      // 模型的信息
       const { config, preparedCall } = await this.prepareRequest(turn, step, signal)
       const startsRequestSeries = firstAttempt && decision.startsRequestSeries === true
 

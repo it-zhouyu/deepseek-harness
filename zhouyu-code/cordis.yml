@@ -6,7 +6,19 @@
     config:
       message: '你好，可配置插件！' 
   - id: hello-tool-plugin
-    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-tool-plugin.ts'    
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-tool-plugin.ts'  
+  - id: hello-service-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/hello-service-plugin.ts'
+  - id: use-counter-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/use-counter-plugin.ts'
+  # - id: zhouyu-event-plugin
+  #   name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/zhouyu-event-plugin.ts'
+  - id: zhouyu-listener-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/zhouyu-listener-plugin.ts'
+  - id: zhouyu-waterfall-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/zhouyu-waterfall-plugin.ts'
+  - id: tool-logger-plugin
+    name: '/Users/dadudu/idea/ai/deepseek-harness/zhouyu-code/tool-logger-plugin.ts'          
 
 - id: webserver
   config:

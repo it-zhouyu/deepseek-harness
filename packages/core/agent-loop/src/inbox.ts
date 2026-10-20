@@ -235,6 +235,7 @@ export class ReactLoopInbox implements InboxContract {
       ...(outcome === undefined ? {} : { outcome }),
     }
     const removed = inbox.slice(actualStart, actualStart + actualDeleteCount)
+    
     // 将消息存到session中
     const event = this.session.append('agent/inbox/spliced', splice)
     if (discardRemoved) {
